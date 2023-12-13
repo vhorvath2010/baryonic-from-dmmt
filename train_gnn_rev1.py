@@ -139,7 +139,7 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
         
 # Save model
-model_name = 'model_' + datetime.now().strftime("%d-%m-%Y-%H:%M:%S")
+model_name = 'model_' + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 torch.save(best_state, f'models/{model_name}.pt')
 torch.save(avg_losses, f'models/{model_name}_losses.pt')
 print(f"Best model saved with loss {best_loss}")
