@@ -45,10 +45,10 @@ for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
         
             # Acquire stellar mass in solar masses
             stellar_mass = stellar_mass.value.item() / (1.989E+33)
-            dark_matter_mass = dark_matter_mass.value.item() / (1.989E+33)
             graph.y[halo_idx] = stellar_mass
 
-            # Update DM Mass
+            # Update DM Mass TRYING TO FIND WHERE MISMATCH IN DM MASS AND SM MASS IS COMING FROM
+            dark_matter_mass = dark_matter_mass.value.item() / (1.989E+33)
             graph.x[halo_idx][0] = dark_matter_mass
             matches += 1
 
