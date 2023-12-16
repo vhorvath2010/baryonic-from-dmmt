@@ -28,6 +28,7 @@ job_idx = int(sys.argv[1])
 matches = 0
 for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
     snapshot.add_particle_filter('p2')
+    snapshot.add_particle_filter('dm')
     for graph in graphs:
         for halo_idx, halo_info in enumerate(graph.x):
             # Ensure halo is within redshift threshold
@@ -40,10 +41,13 @@ for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
             halo_rVir = snapshot.arr(halo_info[-1].item(), RVIR_UNITS)
             sph = snapshot.sphere(halo_pos, halo_rVir)
             stellar_mass = sph.quantities.total_quantity(('p2','particle_mass')) 
+            dark_matter_mass = sph.quantities.total_quantity(('dm', 'particle_mass'))
         
             # Acquire stellar mass in solar masses
             stellar_mass = stellar_mass.value.item() / (1.989E+33)
+            dark_matter_mass = dark_matter_mass.value.item() / (1.989E+33)
             graph.y[halo_idx] = stellar_mass
+            graph.x[halo_idx][0] = dark_matter_mass
             matches += 1
 
 # Save job output
