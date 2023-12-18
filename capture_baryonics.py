@@ -7,7 +7,7 @@ import sys
 
 yt.enable_plugins()
 enzo_data = yt.load("~jw254/data/SG256-v3/DD????/output_????") # Set to proper enzo dataset
-graphs = torch.load('SG256_pruned.pt') # Load graphs from prune_and_gen step
+graphs = torch.load('datasets/SG256_pruned.pt') # Load graphs from prune_and_gen step
 
 # Initialize y values of all halos to -1 so we can validate all halos were queried
 for graph in graphs:
