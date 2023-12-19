@@ -39,7 +39,7 @@ print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
     # find indices without valid SM
     # OPTIONAL: Change 0 to be a threshold value is want SM only
-    valid_halo_idxs = np.where(graph.y > 0)[0]
+    valid_halo_idxs = np.where(graph.y > 0)
     valid_halo_idxs = torch.from_numpy(valid_halo_idxs)
 
     # OPTIONAL: Prune subhalos
