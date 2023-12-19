@@ -13,4 +13,4 @@ cd /storage/hive/project/phy-wise/vhorvath3/baryonic-pred-from-dm/scripts
 
 source ~/.bashrc
 
-srun python clean_non_SM_halos.py
+srun python clean_dataset.py

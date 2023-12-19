@@ -4,14 +4,14 @@ from torch_geometric.data import Data
 
 # Load pruned graphs with baryonic info
 print("Loading graphs...")
-graphs = torch.load("array_outputs/SG256_Full_Graphs_Part_Merged.pt")
+graphs = torch.load("datasets/SG256_Full_Graphs_From_Enzo.pt")
 
 # Ensure we're dealing with a list of graphs, otherwise assume it's in array form
 if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
     graphs = [Data(x=g[0][1], edge_index=g[1][1], y=g[2][1]) for g in graphs]
 
 # OPTIONAL: load subhalos (to exclude)
-subhalos = torch.load("SG256_subhalos.pt")
+subhalos = torch.load("datasets/SG256_subhalos.pt")
 
 # Store subhalo by redshift
 subhalo_map = {}
@@ -39,7 +39,7 @@ print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
     # find indices without valid SM
     # OPTIONAL: Change 0 to be a threshold value is want SM only
-    valid_halo_idxs = np.where(graph.y >= 0)[0]
+    valid_halo_idxs = np.where(graph.y > 0)[0]
     valid_halo_idxs = torch.from_numpy(valid_halo_idxs)
 
     # OPTIONAL: Prune subhalos
@@ -61,7 +61,7 @@ for graph in graphs:
     valid_mass_idxs = []
     curr_idx = 0
     for dm, sm in zip(DM_values, SM_values):
-        if sm < dm:
+        if sm <= dm:
             valid_mass_idxs.append(curr_idx)
         valid_halo_idxs = torch.from_numpy(
             np.intersect1d(valid_halo_idxs, valid_mass_idxs)
@@ -81,5 +81,5 @@ for graph in graphs:
         cleaned_graphs.append(cleaned_graph)
 
 print("Saving cleaned graphs...")
-torch.save(cleaned_graphs, "SG256_Full_Merged_Cleaned_Graphs.pt")
+torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_Graphs.pt")
 print(f"{len(cleaned_graphs)} cleaned graphs saved!")
