@@ -11,26 +11,26 @@ if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
     graphs = [Data(x=g[0][1], edge_index=g[1][1], y=g[2][1]) for g in graphs]
 
 # OPTIONAL: load subhalos (to exclude)
-subhalos = torch.load("datasets/SG256_subhalos.pt")
+# subhalos = torch.load("datasets/SG256_subhalos.pt")
 
 # Store subhalo by redshift
-subhalo_map = {}
-for subhalo in subhalos:
-    rs = round(subhalo[1].item(), 4)
-    subhalos_at_rs = subhalo_map.get(rs, [])
-    subhalos_at_rs.append(subhalo)
-    subhalo_map[rs] = subhalos_at_rs
+# subhalo_map = {}
+# for subhalo in subhalos:
+#    rs = round(subhalo[1].item(), 4)
+#    subhalos_at_rs = subhalo_map.get(rs, [])
+#    subhalos_at_rs.append(subhalo)
+#    subhalo_map[rs] = subhalos_at_rs
 
 
-def is_subhalo(halo_x):
-    rs = round(halo_x[1].item(), 4)
+# def is_subhalo(halo_x):
+#    rs = round(halo_x[1].item(), 4)
     # if subhalo_map.get(rs) is None:
     # print("RS found with no subhalos:", rs)
-    for subhalo in subhalo_map.get(rs, []):
-        subhalo_pos = subhalo[0]
-        if subhalo_pos[0:3] == halo_x[2:5].tolist():
-            return True
-    return False
+#    for subhalo in subhalo_map.get(rs, []):
+#        subhalo_pos = subhalo[0]
+#        if subhalo_pos[0:3] == halo_x[2:5].tolist():
+#            return True
+#    return False
 
 
 # Remove halos with -1 stellar mass (data not loaded)
@@ -38,22 +38,22 @@ cleaned_graphs = []
 print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
     # find indices without valid SM
-    # OPTIONAL: Change 0 to be a threshold value is want SM only
-    valid_halo_idxs = np.where(graph.y > 0)
+    # OPTIONAL: Change 0 to be a threshold value if want SM only
+    valid_halo_idxs = np.where(graph.y >= 0)[0]
     valid_halo_idxs = torch.from_numpy(valid_halo_idxs)
 
     # OPTIONAL: Prune subhalos
     # Find subhalos
-    non_subhalo_mask = np.array([0 if is_subhalo(halo_x) else 1 for halo_x in graph.x])
-    non_subhalo_idxs = np.where(non_subhalo_mask)
+    # non_subhalo_mask = np.array([0 if is_subhalo(halo_x) else 1 for halo_x in graph.x])
+    # non_subhalo_idxs = np.where(non_subhalo_mask)
     # Prune them
-    before_subhalo_prune = len(valid_halo_idxs)
-    valid_halo_idxs = torch.from_numpy(
-        np.intersect1d(valid_halo_idxs, non_subhalo_idxs)
-    )
-    print(
-        "subhalo pruning removed", before_subhalo_prune - len(valid_halo_idxs), "halos"
-    )
+    # before_subhalo_prune = len(valid_halo_idxs)
+    # valid_halo_idxs = torch.from_numpy(
+    #     np.intersect1d(valid_halo_idxs, non_subhalo_idxs)
+    # )
+    # print(
+    #     "subhalo pruning removed", before_subhalo_prune - len(valid_halo_idxs), "halos"
+    # )
 
     # OPTIONAL: Cut halos where SM > DM
     DM_values = [x[0] for x in graph.x]
@@ -63,11 +63,8 @@ for graph in graphs:
     for dm, sm in zip(DM_values, SM_values):
         if sm <= dm:
             valid_mass_idxs.append(curr_idx)
-        valid_halo_idxs = torch.from_numpy(
-            np.intersect1d(valid_halo_idxs, valid_mass_idxs)
-        )
         curr_idx += 1
-
+    valid_halo_idxs = torch.from_numpy(np.intersect1d(valid_halo_idxs, valid_mass_idxs))
     # create subgraph with those halos
     cleaned_graph = graph.subgraph(valid_halo_idxs)
 
@@ -81,5 +78,5 @@ for graph in graphs:
         cleaned_graphs.append(cleaned_graph)
 
 print("Saving cleaned graphs...")
-torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_Graphs.pt")
+torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_Graphs_No_SM.pt")
 print(f"{len(cleaned_graphs)} cleaned graphs saved!")
