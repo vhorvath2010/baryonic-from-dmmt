@@ -39,7 +39,7 @@ print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
     # find indices without valid SM
     # OPTIONAL: Change 0 to be a threshold value if want SM only
-    valid_halo_idxs = np.where(graph.y >= 0)[0]
+    valid_halo_idxs = np.where(graph.y > 0)[0]
     valid_halo_idxs = torch.from_numpy(valid_halo_idxs)
 
     # OPTIONAL: Prune subhalos
@@ -78,5 +78,5 @@ for graph in graphs:
         cleaned_graphs.append(cleaned_graph)
 
 print("Saving cleaned graphs...")
-torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_Graphs_No_SM.pt")
+torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_SM_Only.pt")
 print(f"{len(cleaned_graphs)} cleaned graphs saved!")
