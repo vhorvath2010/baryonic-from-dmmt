@@ -68,7 +68,7 @@ model = GCN().to(device)
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-7)
-loss_fn = torch.nn.MSELoss().to(device)
+loss_fn = torch.nn.GaussianNLLLoss().to(device)
 
 best_state = None
 best_loss = float("inf")
@@ -97,7 +97,7 @@ for epoch in range(1, epochs + 1):
         # non_zero_mask = y != 0
         # non_zero_predictions = torch.squeeze(y_hat)[non_zero_mask]
         # non_zero_truth = y[non_zero_mask]
-        loss = loss_fn(torch.squeeze(y_hat), y)
+        loss = loss_fn(torch.squeeze(y_hat), y, torch.ones(y.shape)) # Use a "diagonal" covariance matrix (since we have 1 feature this is just a 1x1 matrix with 1 value 1)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
