@@ -7,7 +7,7 @@ import sys
 
 yt.enable_plugins()
 enzo_data = yt.load("~jw254/data/SG256-v3/DD????/output_????") # Set to proper enzo dataset
-graphs = torch.load('datasets/SG256_pruned.pt') # Load graphs from prune_and_gen step
+graphs = torch.load('datasets/unpruned/SG256.pt') # Load graphs from prune_and_gen step
 
 # Initialize y values of all halos to -1 so we can validate all halos were queried
 for graph in graphs:
@@ -55,7 +55,7 @@ for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
 # Save job output
 print(f"Saving graphs for job {job_idx}...")
 print(f"Found matches for {matches} halos!")
-torch.save(graphs, f'array_outputs_fixed/SG256_Full_Graphs_Part_{job_idx}.pt') # Set output dir
+torch.save(graphs, f'array_outputs_fixed/SG256_Unpruned_Part_{job_idx}.pt') # Set output dir
 
 print(f"{len(graphs)} Graphs saved with y values!")
 print("Y is form: [stellar_mass (MSun)]")
