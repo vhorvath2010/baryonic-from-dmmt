@@ -10,7 +10,7 @@ trees = list(arbor[:])
 
 # Load trees
 graphs = []
-print("loading and pruning all trees")
+print(f"Creating {len(trees)} graphs")
 for tree in trees:
     ids_in_graph = {}  # hold uid -> idx pairs
     x = []
