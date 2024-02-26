@@ -13,7 +13,6 @@ graphs = []
 print("loading and pruning all trees")
 for tree in trees:
     ids_in_graph = {}  # hold uid -> idx pairs
-    uids_in_x = set()
     x = []
     edge_index = []  # add edges as [parent, child] and transpose afterward
 
@@ -23,21 +22,18 @@ for tree in trees:
             # Save id mapping
             ids_in_graph[curr.uid] = len(ids_in_graph)
 
-        # Ensure node isn't already in graph (should never not be the case...)
-        if curr.uid not in uids_in_x:
-            # Save x values
-            pos = curr["position"].value.tolist()
-            rVir = curr["virial_radius"].value
-            node_data = [
-                curr["mass"].value.item(),
-                curr["redshift"],
-                pos[0],
-                pos[1],
-                pos[2],
-                rVir.item(),
-            ]
-            x.append(node_data)
-            uids_in_x.add(curr.uid)
+        # Save x values
+        pos = curr["position"].value.tolist()
+        rVir = curr["virial_radius"].value
+        node_data = [
+            curr["mass"].value.item(),
+            curr["redshift"],
+            pos[0],
+            pos[1],
+            pos[2],
+            rVir.item(),
+        ]
+        x.append(node_data)
 
         # Generate edge from ancestor
         for ancestor in curr.ancestors:
@@ -45,12 +41,12 @@ for tree in trees:
             if ancestor.uid not in ids_in_graph:
                 # Save id mapping
                 ids_in_graph[ancestor.uid] = len(ids_in_graph)
+
             edge = [
                 ids_in_graph[ancestor.uid],
                 ids_in_graph[curr.uid],
-            ]  # add edge from last relevant to curr (skipping non-relevant nodes in-between)
-            if edge not in edge_index:
-                edge_index.append(edge)
+            ]
+            edge_index.append(edge)
 
     x = torch.tensor(x, dtype=torch.float32)
     edge_index = torch.tensor(edge_index).T
