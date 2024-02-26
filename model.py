@@ -1,5 +1,5 @@
 import torch
-from torch_geometric.nn import GCNConv
+from torch_geometric.nn import SAGEConv
 
 
 # Model arch
@@ -7,11 +7,11 @@ class GCN(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.relu = torch.nn.ReLU()
-        self.conv1 = GCNConv(2, 32)
-        self.conv2 = GCNConv(32, 128)
-        self.conv3 = GCNConv(128, 128)
-        self.conv4 = GCNConv(128, 128)
-        self.conv5 = GCNConv(128, 128)
+        self.conv1 = SAGEConv(2, 32)
+        self.conv2 = SAGEConv(32, 128)
+        self.conv3 = SAGEConv(128, 128)
+        self.conv4 = SAGEConv(128, 128)
+        self.conv5 = SAGEConv(128, 128)
 
         self.lin = torch.nn.Linear(128, 1)
         self.leaky = torch.nn.LeakyReLU(negative_slope=0.01)
