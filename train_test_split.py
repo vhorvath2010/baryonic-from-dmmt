@@ -4,7 +4,7 @@ import math
 
 # Load graphs
 print("Loading graphs...")
-graphs = torch.load("datasets/SG256_From_Enzo_Cleaned_SM_Only.pt")
+graphs = torch.load("datasets/unpruned/SG256_SM_Only.pt")
 
 # Sample into train, test, val split
 print(f"Loaded dataset with {len(graphs)} merger trees")
@@ -14,7 +14,7 @@ print("Shuffling trees...")
 np.random.shuffle(graphs)
 
 # 15% test 15% val, rest to train
-n_vt = math.floor(0.15 * len(graphs))
+n_vt = math.floor(0.10 * len(graphs))
 n_train = len(graphs) - 2 * n_vt
 
 # sample val and test
@@ -31,6 +31,6 @@ print(f"Selected {len(train)} graphs for training")
 print(f"Training graphs have {np.sum([len(graph.x) for graph in train])} total halos")
 
 print("Saving test, train, val graphs...")
-torch.save(val, "datasets/SG256_From_Enzo_Cleaned_SM_Only_Val.pt")
-torch.save(test, "datasets/SG256_From_Enzo_Cleaned_SM_Only_Test.pt")
-torch.save(train, "datasets/SG256_From_Enzo_Cleaned_SM_Only_Train.pt")
+torch.save(val, "datasets/unpruned/SG256_SM_Only_Val.pt")
+torch.save(test, "datasets/unpruned/SG256_SM_Only_Test.pt")
+torch.save(train, "datasets/unpruned/SG256_SM_Only_Train.pt")
