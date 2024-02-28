@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A hive-jw254
-#SBATCH -J combine_array_outputs
+#SBATCH -J gen_trees
 #SBATCH -N1
 #SBATCH -phive
 #SBATCH -t 2-00:00:00
@@ -13,4 +13,4 @@ cd /storage/hive/project/phy-wise/vhorvath3/baryonic-pred-from-dm/scripts
 
 source ~/.bashrc
 
-srun python combine_job_array_outputs.py array_outputs_fixed/SG256_Unpruned_Part_ 104
+srun python gen_trees.py
