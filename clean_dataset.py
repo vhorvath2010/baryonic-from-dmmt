@@ -4,7 +4,7 @@ from torch_geometric.data import Data
 
 # Load pruned graphs with baryonic info
 print("Loading graphs...")
-graphs = torch.load("datasets/SG256_Full_Graphs_From_Enzo.pt")
+graphs = torch.load("datasets/unpruned/SG256_Full.pt")
 
 # Ensure we're dealing with a list of graphs, otherwise assume it's in array form
 if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
@@ -24,8 +24,8 @@ if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
 
 # def is_subhalo(halo_x):
 #    rs = round(halo_x[1].item(), 4)
-    # if subhalo_map.get(rs) is None:
-    # print("RS found with no subhalos:", rs)
+# if subhalo_map.get(rs) is None:
+# print("RS found with no subhalos:", rs)
 #    for subhalo in subhalo_map.get(rs, []):
 #        subhalo_pos = subhalo[0]
 #        if subhalo_pos[0:3] == halo_x[2:5].tolist():
@@ -33,7 +33,7 @@ if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
 #    return False
 
 
-# Remove halos with -1 stellar mass (data not loaded)
+# Remove halos based on stellar mass
 cleaned_graphs = []
 print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
@@ -56,14 +56,11 @@ for graph in graphs:
     # )
 
     # OPTIONAL: Cut halos where SM > DM
-    DM_values = [x[0] for x in graph.x]
-    SM_values = graph.y
-    valid_mass_idxs = []
-    curr_idx = 0
-    for dm, sm in zip(DM_values, SM_values):
-        if sm <= dm:
-            valid_mass_idxs.append(curr_idx)
-        curr_idx += 1
+    DM_values = np.array([x[0] for x in graph.x])
+    SM_values = np.array(graph.y)
+    valid_mask = SM_values <= DM_values
+    valid_mass_idxs = np.where(valid_mask)[0]
+
     valid_halo_idxs = torch.from_numpy(np.intersect1d(valid_halo_idxs, valid_mass_idxs))
     # create subgraph with those halos
     cleaned_graph = graph.subgraph(valid_halo_idxs)
@@ -78,5 +75,5 @@ for graph in graphs:
         cleaned_graphs.append(cleaned_graph)
 
 print("Saving cleaned graphs...")
-torch.save(cleaned_graphs, "datasets/SG256_From_Enzo_Cleaned_SM_Only.pt")
+torch.save(cleaned_graphs, "datasets/unpruned/SG256_SM_Only.pt")
 print(f"{len(cleaned_graphs)} cleaned graphs saved!")

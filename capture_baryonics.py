@@ -25,7 +25,7 @@ REDSHIFT_THRESHOLD = .25
 job_idx = int(sys.argv[1])
 
 # Load enzo snapshots based on job index 10*i to 10*(i+1)
-matches = 0
+# matches = 0
 for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
     snapshot.add_particle_filter('p2')
     snapshot.add_particle_filter('dm')
@@ -48,13 +48,14 @@ for snapshot in enzo_data[job_idx * 10 : (job_idx + 1) * 10]:
             graph.y[halo_idx] = stellar_mass
 
             # Update DM Mass TRYING TO FIND WHERE MISMATCH IN DM MASS AND SM MASS IS COMING FROM
-            dark_matter_mass = dark_matter_mass.value.item() / (1.989E+33)
-            graph.x[halo_idx][0] = dark_matter_mass
-            matches += 1
+            # WHY DIDN'T THIS WORK (????)
+            # dark_matter_mass = dark_matter_mass.value.item() / (1.989E+33)
+            # graph.x[halo_idx][0] = dark_matter_mass
+            # matches += 1
 
 # Save job output
 print(f"Saving graphs for job {job_idx}...")
-print(f"Found matches for {matches} halos!")
+# print(f"Found matches for {matches} halos!")
 torch.save(graphs, f'array_outputs_fixed/SG256_Unpruned_Part_{job_idx}.pt') # Set output dir
 
 print(f"{len(graphs)} Graphs saved with y values!")
