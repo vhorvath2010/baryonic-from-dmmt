@@ -67,7 +67,7 @@ model = GCN().to(device)
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
-loss_fn = torch.nn.MSELoss().to(device)
+loss_fn = torch.nn.HuberLoss(delta=1e4).to(device)
 
 best_state = None
 best_loss = float("inf")
@@ -114,7 +114,7 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
 
 # Save model
-model_name = 'unpruned_model' # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+model_name = 'unpruned_model_huber' # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 torch.save(best_state, f"models/{model_name}.pt")
 torch.save(avg_losses, f"models/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")
