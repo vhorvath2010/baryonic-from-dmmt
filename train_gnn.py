@@ -23,6 +23,9 @@ print(f"loaded {len(graphs)} graphs")
 # Select specific features for each data (currently mass and redshift)
 for graph in graphs:
     graph.x = torch.tensor([[data[0], data[1]] for data in graph.x])
+    # Logspace outputs and dark matter mass
+    graph.y = torch.log10(graph.y)
+    graph.x[:, 0] = torch.log10(graph.x[:, 0])
 
 valid = True
 for graph in graphs:
@@ -36,23 +39,14 @@ if not valid:
     print("Invalid graphs found! Exiting...")
     exit(1)
 
-# Custom loss function to ignore non-zero SM values
-# from torchmetrics import MeanAbsolutePercentageError
 
-
-class CustomMSELoss(torch.nn.Module):
+# Custom loss function to emphasize bigger halos
+class CustomEXPLoss(torch.nn.Module):
     def __init__(self):
-        super(CustomMSELoss, self).__init__()
+        super(CustomEXPLoss, self).__init__()
 
     def forward(self, predictions, targets):
-        non_zero_mask = targets != 0
-        non_zero_predictions = torch.where(
-            non_zero_mask, predictions, torch.zeros_like(predictions)
-        )
-        non_zero_targets = torch.where(
-            non_zero_mask, targets, torch.zeros_like(targets)
-        )
-        loss = (non_zero_predictions - non_zero_targets) ** 2
+        loss = (torch.abs(predictions - targets)) ** targets
         return torch.mean(loss)
 
 
@@ -66,13 +60,13 @@ print(f"Training on device {device}...")
 model = GCN().to(device)
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
-loss_fn = torch.nn.HuberLoss(delta=1e4).to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+loss_fn = CustomEXPLoss()
 
 best_state = None
 best_loss = float("inf")
 
-epochs = 250
+epochs = 50
 print("Starting training...")
 
 # Track average losses (MSE average of halos)
@@ -114,7 +108,7 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
 
 # Save model
-model_name = 'unpruned_model_huber' # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+model_name = "unpruned_exp_logspace"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 torch.save(best_state, f"models/{model_name}.pt")
 torch.save(avg_losses, f"models/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")
