@@ -36,6 +36,4 @@ class GCN(torch.nn.Module):
 
         x = self.lin(x)
 
-        x = self.leaky(x)
-
         return x

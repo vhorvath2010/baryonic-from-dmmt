@@ -61,7 +61,7 @@ model = GCN().to(device)
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = CustomEXPLoss()
+loss_fn = torch.nn.MSELoss()  # CustomEXPLoss()
 
 best_state = None
 best_loss = float("inf")
@@ -97,7 +97,7 @@ for epoch in range(1, epochs + 1):
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-    avg_loss = total_loss / n_halos
+    avg_loss = total_loss / len(loader)
     avg_losses.append(avg_loss)
 
     if avg_loss < best_loss:
@@ -108,7 +108,9 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
 
 # Save model
-model_name = "unpruned_exp_logspace"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+model_name = (
+    "unpruned_mse_logspace"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+)
 torch.save(best_state, f"models/{model_name}.pt")
 torch.save(avg_losses, f"models/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")
