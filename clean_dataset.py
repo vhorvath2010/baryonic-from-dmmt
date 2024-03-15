@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from torch_geometric.data import Data
 
-# Load pruned graphs with baryonic info
+# Load graphs with baryonic info
 print("Loading graphs...")
 graphs = torch.load("datasets/unpruned/SG256_Full.pt")
 
@@ -37,6 +37,10 @@ if not isinstance(graphs, list) or not isinstance(graphs[0], Data):
 cleaned_graphs = []
 print(f"Cleaning {len(graphs)} graphs...")
 for graph in graphs:
+    # debugging, check if any halos have any stellar mass, if so include the graph
+    if max(graph.y) > 0:
+        cleaned_graphs.append(graph)
+        continue
     # find indices without valid SM
     # OPTIONAL: Change 0 to be a threshold value if want SM only
     valid_halo_idxs = np.where(graph.y > 0)[0]
@@ -56,12 +60,12 @@ for graph in graphs:
     # )
 
     # OPTIONAL: Cut halos where SM > DM
-    DM_values = np.array([x[0] for x in graph.x])
-    SM_values = np.array(graph.y)
-    valid_mask = SM_values <= DM_values
-    valid_mass_idxs = np.where(valid_mask)[0]
+    # DM_values = np.array([x[0] for x in graph.x])
+    # SM_values = np.array(graph.y)
+    # valid_mask = SM_values <= DM_values
+    # valid_mass_idxs = np.where(valid_mask)[0]
 
-    valid_halo_idxs = torch.from_numpy(np.intersect1d(valid_halo_idxs, valid_mass_idxs))
+    # valid_halo_idxs = torch.from_numpy(np.intersect1d(valid_halo_idxs, valid_mass_idxs))
     # create subgraph with those halos
     cleaned_graph = graph.subgraph(valid_halo_idxs)
 
@@ -75,5 +79,5 @@ for graph in graphs:
         cleaned_graphs.append(cleaned_graph)
 
 print("Saving cleaned graphs...")
-torch.save(cleaned_graphs, "datasets/unpruned/SG256_SM_Only.pt")
+torch.save(cleaned_graphs, "datasets/unpruned/SG256_SM_Only_Debugging.pt")
 print(f"{len(cleaned_graphs)} cleaned graphs saved!")
