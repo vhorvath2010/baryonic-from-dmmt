@@ -13,6 +13,7 @@ class GCN(torch.nn.Module):
         # Add first SAGEConv block
         self.gconv_layers.append(SAGEConv(input_channels, hidden_channels))
         self.gconv_layers.append(nn.LeakyReLU())
+        self.gconv_layers.append(nn.BatchNorm1d(hidden_channels))
 
         # Add hidden SAGEConv blocks
         for i in range(num_hidden):
