@@ -63,11 +63,11 @@ print(f"Training on device {device}...")
 
 # model = GCN().to(device)
 model = GCN_Refined(
-    input_channels=2, output_channels=1, hidden_channels=2**5, num_hidden=4
+    input_channels=2, output_channels=1, hidden_channels=8, num_hidden=4
 )
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-4)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-1, weight_decay=1e-4)
 loss_fn = torch.nn.MSELoss()  # CustomEXPLoss()
 
 best_state = None
@@ -115,9 +115,7 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
 
 # Save model
-model_name = (
-    "low_mass_to_5_wider"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-)
+model_name = "final_model"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 torch.save(best_state, f"saved_model_params/refined_model/{model_name}.pt")
 torch.save(avg_losses, f"saved_model_params/refined_model/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")

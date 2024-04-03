@@ -48,20 +48,23 @@ for graph in graphs:
     #     continue
     # find indices without valid SM
 
-    # Stellar mass thresholding
-    valid_mask = (graph.y > 0) & (graph.y < 10**5)
+    # DM mass thresholding (0-th index of x info for a node is DM in MSun)
+    valid_mask = graph.x[:, 0] > 10**5
 
-    # Leave if no valid stars
-    before_subhalo_prune = torch.sum(valid_mask)
-    if before_subhalo_prune == 0:
-        continue
+    # Stellar mass thresholding
+    valid_mask = valid_mask & (graph.y > 0) & (graph.y < 10**5) & (graph.x[:, 0] > graph.y)
+
+    # # Leave if no valid stars
+    # before_subhalo_prune = torch.sum(valid_mask)
+    # if before_subhalo_prune == 0:
+    #     continue
 
     # OPTIONAL: Prune subhalos
     # Find subhalos
     non_subhalo_mask = np.array([0 if is_subhalo(halo_x) else 1 for halo_x in graph.x])
     # Prune them
     valid_mask = valid_mask & non_subhalo_mask
-    print(f"subhalo pruning removed: {before_subhalo_prune - torch.sum(valid_mask)}")
+    # print(f"subhalo pruning removed: {before_subhalo_prune - torch.sum(valid_mask)}")
 
     # OPTIONAL: Cut halos where SM > DM
     # DM_values = np.array([x[0] for x in graph.x])
