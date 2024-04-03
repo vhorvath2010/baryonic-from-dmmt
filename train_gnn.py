@@ -3,7 +3,8 @@ from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 import sys
 from datetime import datetime
-from model import GCN
+from models.refined_model import GCN as GCN_Refined
+from models.model import GCN
 
 # Get training data path as argument
 if len(sys.argv) != 2:
@@ -23,10 +24,13 @@ print(f"loaded {len(graphs)} graphs")
 # Select specific features for each data (currently mass and redshift)
 for graph in graphs:
     graph.x = torch.tensor([[data[0], data[1]] for data in graph.x])
+
     # Logspace outputs and dark matter mass
     graph.y = torch.log10(graph.y)
     graph.x[:, 0] = torch.log10(graph.x[:, 0])
 
+
+# Validate all graphs
 valid = True
 for graph in graphs:
     if not graph.validate():
@@ -57,16 +61,19 @@ loader = DataLoader(graphs, batch_size=64, shuffle=False)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Training on device {device}...")
 
-model = GCN().to(device)
+# model = GCN().to(device)
+model = GCN_Refined(
+    input_channels=2, output_channels=1, hidden_channels=2**5, num_hidden=4
+)
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-4)
 loss_fn = torch.nn.MSELoss()  # CustomEXPLoss()
 
 best_state = None
 best_loss = float("inf")
 
-epochs = 50
+epochs = 100
 print("Starting training...")
 
 # Track average losses (MSE average of halos)
@@ -109,8 +116,8 @@ for epoch in range(1, epochs + 1):
 
 # Save model
 model_name = (
-    "unpruned_mse_logspace"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+    "low_mass_to_5_wider"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 )
-torch.save(best_state, f"models/{model_name}.pt")
-torch.save(avg_losses, f"models/{model_name}_losses.pt")
+torch.save(best_state, f"saved_model_params/refined_model/{model_name}.pt")
+torch.save(avg_losses, f"saved_model_params/refined_model/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")
