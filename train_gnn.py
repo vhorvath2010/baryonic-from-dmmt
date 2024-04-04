@@ -55,7 +55,7 @@ class CustomEXPLoss(torch.nn.Module):
 
 
 # Create DataLoader for batching
-loader = DataLoader(graphs, batch_size=64, shuffle=False)
+loader = DataLoader(graphs, batch_size=8, shuffle=False)
 
 # Train model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,7 +67,7 @@ model = GCN_Refined(
 )
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-1, weight_decay=1e-4)
+optimizer = torch.optim.Adam(model.parameters(), lr=5e-2, weight_decay=0.1)
 loss_fn = torch.nn.MSELoss()  # CustomEXPLoss()
 
 best_state = None
@@ -115,7 +115,7 @@ for epoch in range(1, epochs + 1):
         print(f"Loss on epoch {epoch}: {avg_loss}")
 
 # Save model
-model_name = "final_model"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+model_name = "decayed_model"  # "model_" + datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 torch.save(best_state, f"saved_model_params/refined_model/{model_name}.pt")
 torch.save(avg_losses, f"saved_model_params/refined_model/{model_name}_losses.pt")
 print(f"Best model saved with loss {best_loss}")
